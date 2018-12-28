@@ -28,16 +28,20 @@ class ComparatorController extends AbstractController
             array_push($items, $item);
         }
         
+        // $itemsless est la liste des 10 premiers produits du flux
         $itemsless = array_slice($items,0,10);
-        //$elements = array();
-        //foreach ( $itemsless as $item) {
-            //array_push($elements, $item->getAllElements()->getArrayCopy());
-        //}
-        $elements = $itemsless[0]->getAllElements()->getArrayCopy();
+        
+        // $elements est la liste qui liste les 16 éléments de chaque produit
+        $elements = array();
+        for ($i = 0;$i<count($itemsless);$i++) {
+            array_push($elements,$itemsless[$i]->getAllElements()->getArrayCopy());
+        }
+        
+        
         
         return $this->render('comparator/index.html.twig', [
-            'items'  => $itemsless,
-            'elements' => $elements
+            'item'  => $itemsless[0],
+            'elements' => $elements[0]
         ]);
         
         

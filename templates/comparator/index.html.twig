@@ -4,8 +4,34 @@
 
 {% block main %}
 
-{% for element in elements %}
+{# {% for element in elements %}
     {{ dump(element.value) }}
-{% endfor %}
+{% endfor %} #}
+
+<div>
+	<h2>{{ item.title }}</h2><br>
+	<a href='{{ item.link }}' target='_blank'>voir l'article</a><br><br>
+	{{ item.description }}<br>
+</div>
+
+<br>
+
+<table>
+	<thead>
+		<tr>
+		{% for element in elements %}
+			<th>{{ element.name }}</th>
+		{% endfor %}
+		</tr>
+	</thead>
+		<tbody>
+			<tr>
+			{% for element in elements %}
+				<td>{{ element.value }}</td>
+			{% endfor %}
+		</tbody>
+</table>
+
+{{ dump(item) }}
 
 {% endblock %}
