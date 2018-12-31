@@ -13,35 +13,24 @@ class ComparatorController extends AbstractController
     public function index()
     {
         
-        $feedIo = \FeedIo\Factory::create()->getFeedIo();
-        
         $url = 'https://www.careserve.fr/leguide-2-s1-fr-EUR.xml';
-        // read a feed
-        $result = $feedIo->read($url);
         
-        // or read a feed since a certain date
-        //$result = $feedIo->readSince($url, new \DateTime('-7 days'));
+        $feed = simplexml_load_file($url);
         
-        $items = array();
-        // iterate through items
-        foreach( $result->getFeed() as $item ) {
-            array_push($items, $item);
+        $title = array();
+        foreach ($feed->channel->item as $products) {
+            $title[] = $products->title;
         }
         
-        // $itemsless est la liste des 10 premiers produits du flux
-        $itemsless = array_slice($items,0,10);
-        
-        // $elements est la liste qui liste les 16 éléments de chaque produit
-        $elements = array();
-        for ($i = 0;$i<count($itemsless);$i++) {
-            array_push($elements,$itemsless[$i]->getAllElements()->getArrayCopy());
-        }
-        
+        $namespace = $feed->getNamespaces(true);
+        $imageurl = $feed->channel->item[0]->children($namespace["g"]);
+        $shipping = $imageurl->shipping->service;
         
         
         return $this->render('comparator/index.html.twig', [
-            'item'  => $itemsless[0],
-            'elements' => $elements[0]
+            'feed' => $feed->channel->item->description,
+            'title' => $feed->channel->item[0]->title,
+            'shipping' => $shipping
         ]);
         
         
