@@ -4,6 +4,9 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Merchant;
+use FeedIo\Adapter\FileSystem\Response;
+use App\Entity\Product;
 
 class ComparatorController extends AbstractController
 {
@@ -12,9 +15,8 @@ class ComparatorController extends AbstractController
      */
     public function index()
     {
-        
-        $url = 'https://www.careserve.fr/leguide-2-s1-fr-EUR.xml';
-        
+       
+        $url = "https://www.careserve.fr/leguide-2-s1-fr-EUR.xml";
         $feed = simplexml_load_file($url);
         
         $title = array();
@@ -30,10 +32,33 @@ class ComparatorController extends AbstractController
         return $this->render('comparator/index.html.twig', [
             'feed' => $feed->channel->item->description,
             'title' => $feed->channel->item[0]->title,
-            'shipping' => $shipping
-        ]);
-        
-        
-        
+            'shipping' => $shipping,
+            'merchants' => $merchants 
+        ]);   
     }
+    
+    /**
+     * @Route("/show_products", name="show_products")
+     */
+    public function product_show() {
+        
+        $em = $this->getDoctrine()->getManager();
+        $merchants = $em->getRepository(Merchant::class)->findAll();
+        
+        $feeds = array();
+        foreach ( $merchants as $merchant) {
+            $feeds[] = $merchant->getUrl();
+        }
+        
+        
+        
+        return $this->render('comparator/show.html.twig', [
+            'feeds' => $feeds
+        ]);
+    }
+    
+    
 }
+
+
+
