@@ -2,13 +2,15 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Merchant;
-use FeedIo\Adapter\FileSystem\Response;
 use App\Entity\Product;
+use Eko\FeedBundle\Feed\FeedManager;
+use Eko\FeedBundle\Hydrator\DefaultHydrator;
+use Doctrine\ORM\Mapping\Entity;
 
-class ComparatorController extends AbstractController
+class ComparatorController extends Controller
 {
     /**
      * @Route("/comparator", name="comparator")
@@ -16,24 +18,32 @@ class ComparatorController extends AbstractController
     public function index()
     {
        
+        $em = $this->getDoctrine()->getManager();
+        $existingproducts = $em->getRepository(Product::class)->findAll();
+        
         $url = "https://www.careserve.fr/leguide-2-s1-fr-EUR.xml";
         $feed = simplexml_load_file($url);
         
-        $title = array();
-        foreach ($feed->channel->item as $products) {
-            $title[] = $products->title;
+        $namespace = $feed->getNamespaces(true);
+                
+        $products = array();
+        foreach ($feed->channel->item as $item) {
+            $g = $item->children($namespace["g"]);
+            $product = new Product();
+            // if existingproduct link patati patata
+            $product->setTitle($item->title);
+            $product->setDescription($item->description);
+            $product->setLink($item->link);
+            $product->setImagelink($g->image_link);
+            $product->setPrice($g->price);
+            $em->persist($product);
+            array_push($products,$product);
         }
         
-        $namespace = $feed->getNamespaces(true);
-        $imageurl = $feed->channel->item[0]->children($namespace["g"]);
-        $shipping = $imageurl->shipping->service;
-        
+        $em->flush();
         
         return $this->render('comparator/index.html.twig', [
-            'feed' => $feed->channel->item->description,
-            'title' => $feed->channel->item[0]->title,
-            'shipping' => $shipping,
-            'merchants' => $merchants 
+            'products' => array_slice($products, 0, 10)
         ]);   
     }
     
@@ -42,7 +52,6 @@ class ComparatorController extends AbstractController
      */
     public function product_show() {
         
-        $em = $this->getDoctrine()->getManager();
         $merchants = $em->getRepository(Merchant::class)->findAll();
         
         $feeds = array();
@@ -52,8 +61,14 @@ class ComparatorController extends AbstractController
         
         
         
+        $reader = $this->get('eko_feed.feed.reader');
+        $reader->setHydrator(new DefaultHydrator());
+        $items = $reader->load($feeds[0])->populate('App\Entity\Product');
+        
+            
         return $this->render('comparator/show.html.twig', [
-            'feeds' => $feeds
+            'feeds' => $feeds,
+            'items'=> $items
         ]);
     }
     
