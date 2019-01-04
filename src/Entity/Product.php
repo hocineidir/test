@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Eko\FeedBundle\Item\Reader\ItemInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")

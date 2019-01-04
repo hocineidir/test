@@ -6,8 +6,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Merchant;
 use App\Entity\Product;
-use Eko\FeedBundle\Feed\FeedManager;
-use Eko\FeedBundle\Hydrator\DefaultHydrator;
 use Doctrine\ORM\Mapping\Entity;
 
 class ComparatorController extends Controller
@@ -19,7 +17,7 @@ class ComparatorController extends Controller
     {
        
         $em = $this->getDoctrine()->getManager();
-        $existingproducts = $em->getRepository(Product::class)->findAll();
+        //$existingproducts = $em->getRepository(Product::class)->findAll();
         
         $url = "https://www.careserve.fr/leguide-2-s1-fr-EUR.xml";
         $feed = simplexml_load_file($url);
@@ -58,17 +56,9 @@ class ComparatorController extends Controller
         foreach ( $merchants as $merchant) {
             $feeds[] = $merchant->getUrl();
         }
-        
-        
-        
-        $reader = $this->get('eko_feed.feed.reader');
-        $reader->setHydrator(new DefaultHydrator());
-        $items = $reader->load($feeds[0])->populate('App\Entity\Product');
-        
             
         return $this->render('comparator/show.html.twig', [
             'feeds' => $feeds,
-            'items'=> $items
         ]);
     }
     
