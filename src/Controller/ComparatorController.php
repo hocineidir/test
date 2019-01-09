@@ -17,31 +17,36 @@ class ComparatorController extends Controller
     {
        
         $em = $this->getDoctrine()->getManager();
-        //$existingproducts = $em->getRepository(Product::class)->findAll();
+        $existingproducts = $em->getRepository(Product::class)->findAll();
+        $merchants = $em->getRepository(Merchant::class)->findAll();
         
-        $url = "https://www.careserve.fr/leguide-2-s1-fr-EUR.xml";
-        $feed = simplexml_load_file($url);
+        
+        $feedurl = "https://www.careserve.fr/leguide-2-s1-fr-EUR.xml";
+        $feed = simplexml_load_file($feedurl);
         
         $namespace = $feed->getNamespaces(true);
                 
-        $products = array();
-        foreach ($feed->channel->item as $item) {
-            $g = $item->children($namespace["g"]);
-            $product = new Product();
-            // if existingproduct link patati patata
-            $product->setTitle($item->title);
-            $product->setDescription($item->description);
-            $product->setLink($item->link);
-            $product->setImagelink($g->image_link);
-            $product->setPrice($g->price);
-            $em->persist($product);
-            array_push($products,$product);
-        }
+        //$products = array();
+        //foreach ($feed->channel->item as $item) {
+            //$g = $item->children($namespace["g"]);
+            //$product = new Product();
+            //if ( $existingproducts)
+            //$product->setTitle($item->title);
+            //$product->setDescription($item->description);
+            //$product->setLink($item->link);
+            //$product->setImagelink($g->image_link);
+            //$product->setPrice($g->price);
+            //$em->persist($product);
+            //array_push($products,$product);
+        //}
         
-        $em->flush();
+        //$em->flush();
         
-        return $this->render('comparator/index.html.twig', [
-            'products' => array_slice($products, 0, 10)
+        
+        
+        return $this->render('comparator/index_comparator.html.twig', [
+            'products' => array_slice($existingproducts, 0, 10),
+            'feed' => $feed
         ]);   
     }
     

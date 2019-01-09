@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body_id 'homepage' %}
+
+{#
+    the homepage is a special page which displays neither a header nor a footer.
+    this is done with the 'trick' of defining empty Twig blocks without any content
+#}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block body %}
+
+
+    <div class="page-header">
+        <h1> Bienvenue sur <strong>PriceComparatorRM</strong></h1>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="jumbotron">
+                <p>
+                	Naviguer sur le comparateur de prix 
+                </p>
+                <p>
+                    <a class="btn btn-primary btn-lg" href="{{ path('comparator') }}">
+                        <i class="fa fa-users" aria-hidden="true"></i> Comparator
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
